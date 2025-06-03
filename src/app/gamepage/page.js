@@ -11,9 +11,18 @@ const [trail, setTrail] = useState([]); // 滑鼠軌跡
   const playerSize = 40;
   const enemySize = 30;
 
+  const enemyIdCounter = useRef(0);
+
+
   // 玩家固定在畫面中央
-  const playerX = window.innerWidth / 2 - playerSize / 2;
-  const playerY = window.innerHeight / 2 - playerSize / 2;
+
+  const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const x = window.innerWidth / 2 - playerSize / 2;
+    const y = window.innerHeight / 2 - playerSize / 2;
+    setPlayerPos({ x, y });
+  }, []);
 
   let uniqueId = 0;
 
@@ -88,7 +97,10 @@ useEffect(() => {
         break;
     }
 
-    setEnemies(prev => [...prev, { id: getUniqueId(), x, y }]);
+    setEnemies(prev => {
+  const id = enemyIdCounter.current++;
+  return [...prev, { id, x, y }];
+});
   };
 
   const interval = setInterval(spawnEnemy, 2000); // 每 2 秒生成一個敵人
@@ -97,27 +109,29 @@ useEffect(() => {
 
 
   // 敵人移動
-  useEffect(() => {
-    const moveEnemies = () => {
-      setEnemies(prev =>
-        prev.map(enemy => {
-          const dx = playerX - enemy.x;
-          const dy = playerY - enemy.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          const speed = 1.2; // 可調整速度
+useEffect(() => {
+  if (playerPos.x === 0 && playerPos.y === 0) return; // 尚未初始化完畢
 
-          return {
-            ...enemy,
-            x: enemy.x + (dx / distance) * speed,
-            y: enemy.y + (dy / distance) * speed,
-          };
-        })
-      );
-      requestAnimationFrame(moveEnemies);
-    };
+  const moveEnemies = () => {
+    setEnemies(prev =>
+      prev.map(enemy => {
+        const dx = playerPos.x - enemy.x;
+        const dy = playerPos.y - enemy.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const speed = 1.2;
 
-    moveEnemies();
-  }, []);
+        return {
+          ...enemy,
+          x: enemy.x + (dx / distance) * speed,
+          y: enemy.y + (dy / distance) * speed,
+        };
+      })
+    );
+    requestAnimationFrame(moveEnemies);
+  };
+
+  moveEnemies();
+}, [playerPos])
 
   //https://hackmd.io/@Heidi-Liu/nextjs-error-fix
   useEffect(() => {
@@ -143,8 +157,8 @@ return (
         borderRadius: '50%',
         background: '#333',
         position: 'absolute',
-        left: playerX,
-        top: playerY,
+        left: playerPos.x,
+        top: playerPos.y,
       }}
     />
 
