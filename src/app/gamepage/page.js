@@ -6,12 +6,16 @@ export default function GamePage() {
   const gameRef = useRef(null);
   const playerRef = useRef(null);
   const [enemies, setEnemies] = useState([]);
-const [trail, setTrail] = useState([]); // 滑鼠軌跡
+  const [trail, setTrail] = useState([]); // 滑鼠軌跡
 
   const playerSize = 40;
   const enemySize = 30;
 
   const enemyIdCounter = useRef(0);
+
+  const [lives, setLives] = useState(3); // 生命值
+  const [isGameOver, setIsGameOver] = useState(false); // 是否結束
+
 
 
   // 玩家固定在畫面中央
@@ -143,11 +147,62 @@ useEffect(() => {
   })
 },[])
 
+// 檢查角色與敵人的碰撞
+useEffect(() => {
+  //if (isGameOver) return;
+
+  let animationId;
+
+  const checkPlayerCollisions = () => {
+    setEnemies(prevEnemies => {
+      const remainingEnemies = [];
+      let hit = false;
+
+      for (let enemy of prevEnemies) {
+        const dx = (enemy.x + enemySize / 2) - (playerPos.x + playerSize / 2);
+        const dy = (enemy.y + enemySize / 2) - (playerPos.y + playerSize / 2);
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < (enemySize + playerSize) / 2) {
+          hit = true; // 被撞到
+        } else {
+          remainingEnemies.push(enemy);
+        }
+      }
+
+
+      if (hit) {
+        setLives(prev => {
+          const newLives = prev - 0.5;
+          if (newLives <= 0) {
+            setIsGameOver(true);
+          }
+          return newLives;
+        });
+      }
+
+      return remainingEnemies; // 移除撞到角色的敵人
+    });
+
+    animationId = requestAnimationFrame(checkPlayerCollisions);
+  };
+
+  animationId = requestAnimationFrame(checkPlayerCollisions);
+  return () => cancelAnimationFrame(animationId);
+}, [playerPos.x, playerPos.y, isGameOver]);
+
+
 return (
   <div
     ref={gameRef}
     className="w-full h-screen bg-[#fff9ef] relative overflow-hidden"
   >
+
+    {/* 生命條 */}
+    <div className="absolute top-4 left-4 text-lg font-bold text-red-600">
+      ❤️ x {lives}
+    </div>
+
     {/* 玩家 */}
     <div
       ref={playerRef}
@@ -179,22 +234,26 @@ return (
     ))}
 
 
-    {/* 滑鼠軌跡 */}
-      {trail.map((point) => (
-        <div
-          key={point.id}
+      {/* 滑順 SVG 滑鼠軌跡 */}
+        <svg
           style={{
-            width: 10,
-            height: 10,
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
-            borderRadius: '50%',
             position: 'absolute',
-            left: point.x - 5,
-            top: point.y - 5,
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
             pointerEvents: 'none',
           }}
-        />
-      ))}
+        >
+          <polyline
+            points={trail.map(p => `${p.x},${p.y}`).join(' ')}
+            fill="none"
+            stroke="rgba(0,0,0,0.3)"
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
 
   </div>
 );

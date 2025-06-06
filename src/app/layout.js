@@ -21,7 +21,11 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+        >
+    
+        {/* 以下這句修錯誤訊息 */}
+        <time dateTime="2016-10-25" suppressHydrationWarning />
+        
         {children}
       </body>
     </html>
