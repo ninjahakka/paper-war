@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import paperImg from "@/../public/paper2.jpg"
 import Link from "next/link";
+import { useMemo } from 'react';
 
 export default function GamePage() {
   const isHitRef = useRef(false);
@@ -25,10 +26,27 @@ export default function GamePage() {
 
   const isGameEnded = isCleared || isGameOver;
 
-
   const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
 
   const [isClient, setIsClient] = useState(false);
+
+  const slashSounds = useMemo(() => [
+  new Audio('/audio/writing1.mp3'),
+  new Audio('/audio/writing2.mp3'),
+  new Audio('/audio/writing3.mp3'),
+  new Audio('/audio/writing4.mp3'),
+  new Audio('/audio/writing5.mp3')
+  
+], []);
+
+const playRandomSlashSound = () => {
+  const randomIndex = Math.floor(Math.random() * slashSounds.length);
+  const sound = slashSounds[randomIndex];
+  // 若已在播放則先重設再播放，避免卡住
+  sound.pause();         // 停止當前播放
+  sound.currentTime = 0; // 回到開頭
+  sound.play();          // 播放音效
+};
 
   useEffect(() => {
     setIsClient(true);
@@ -80,24 +98,61 @@ export default function GamePage() {
   }, []);
 
   //消滅敵人
-  useEffect(() => {
-    let animationId;
-    const checkCollisions = () => {
-      setEnemies(prevEnemies =>
-        prevEnemies.filter(enemy => {
-          return !trail.some(point => {
-            const dx = enemy.x + enemySize / 2 - point.x;
-            const dy = enemy.y + enemySize / 2 - point.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            return distance < enemySize / 2;
-          });
-        })
-      );
-      animationId = requestAnimationFrame(checkCollisions);
-    };
+  // useEffect(() => {
+  //   let animationId;
+  //   const checkCollisions = () => {
+  //     setEnemies(prevEnemies =>
+  //       prevEnemies.filter(enemy => {
+  //         return !trail.some(point => {
+  //           const dx = enemy.x + enemySize / 2 - point.x;
+  //           const dy = enemy.y + enemySize / 2 - point.y;
+  //           const distance = Math.sqrt(dx * dx + dy * dy);
+  //           return distance < enemySize / 2;
+  //         });
+  //       })
+  //     );
+  //     animationId = requestAnimationFrame(checkCollisions);
+  //   };
+  //   animationId = requestAnimationFrame(checkCollisions);
+  //   return () => cancelAnimationFrame(animationId);
+  // }, [trail, enemySize]);
+useEffect(() => {
+  let animationId;
+
+  const checkCollisions = () => {
+    setEnemies(prevEnemies => {
+      const newEnemies = [];
+      let hitOccurred = false;
+
+      for (let enemy of prevEnemies) {
+        const wasHit = trail.some(point => {
+          const dx = enemy.x + enemySize / 2 - point.x;
+          const dy = enemy.y + enemySize / 2 - point.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          return distance < enemySize / 2;
+        });
+
+        if (wasHit) {
+          hitOccurred = true; // 紀錄是否有敵人被擊中
+        } else {
+          newEnemies.push(enemy); // 沒被擊中的敵人才保留
+        }
+      }
+
+      // 隨機播放音效（如果有敵人被筆跡打到）
+      if (hitOccurred && !isGameEnded) {
+        playRandomSlashSound();
+      }
+
+      return newEnemies;
+    });
+
     animationId = requestAnimationFrame(checkCollisions);
-    return () => cancelAnimationFrame(animationId);
-  }, [trail, enemySize]);
+  };
+
+  animationId = requestAnimationFrame(checkCollisions);
+  return () => cancelAnimationFrame(animationId);
+}, [trail, enemySize]);
 
   // 敵人生成
   useEffect(() => {
@@ -117,7 +172,7 @@ export default function GamePage() {
         return [...prev, { id, x, y }];
       });
     };
-    const interval = setInterval(spawnEnemy, 700); // 2000 = 每 2 秒生成一個敵人
+    const interval = setInterval(spawnEnemy, 500); // 2000 = 每 2 秒生成一個敵人
     return () => clearInterval(interval);
   }, []);
 

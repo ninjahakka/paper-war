@@ -1,17 +1,25 @@
 import Image from "next/image";
 import Link from "next/link";
 import paperImg from "@/../public/paper2.jpg"
+import titleImg from "@/../public/title2.png"
 
 export default function Home() {
 
   return (
-    <div className="w-screen h-screen bg-[#fff9ef] flex justify-center items-center"
+    <div className="w-screen h-screen bg-[#fff9ef] flex flex-col justify-center items-center"
     style={
               { backgroundImage: `url(${paperImg.src})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center'}
             }
     >
+
+      <div className="text-black">
+        <Image src={titleImg} alt='Title' className="" />
+      </div>
+
+
+      <div>
           <Link href="/gamepage">
             <div className="flex gap-4 items-center justify-center flex-col sm:flex-row">
             <div
@@ -33,6 +41,7 @@ export default function Home() {
             </div>
           </div>
           </Link>
+      </div>
                     
         </div>
 
