@@ -6,7 +6,7 @@ import titleImg from "@/../public/title2.png"
 export default function Home() {
 
   return (
-    <div className="w-screen h-screen bg-[#fff9ef] flex flex-col justify-center items-center"
+    <div className="w-screen h-screen bg-[#fff9ef] flex flex-col justify-center items-center gap-4"
     style={
               { backgroundImage: `url(${paperImg.src})`,
               backgroundSize: 'cover',
@@ -14,7 +14,8 @@ export default function Home() {
             }
     >
 
-      <div className="text-black">
+
+      <div className="text-black pb-4">
         <Image src={titleImg} alt='Title' className="" />
       </div>
 
@@ -30,17 +31,22 @@ export default function Home() {
               target="_blank"
               rel="noopener noreferrer"    
             >
-              <Image
+              {/* <Image
                 className="dark:invert"
                 src="/vercel.svg"
                 alt="Vercel logomark"
                 width={20}
                 height={20}
-              />
-              開始遊戲
+              /> */}
+              ✏️開始遊戲
             </div>
           </div>
           </Link>
+      </div>
+
+
+      <div className="text-black">
+        準備用你手上的鉛筆，對付不斷滋生的敵人吧！
       </div>
                     
         </div>

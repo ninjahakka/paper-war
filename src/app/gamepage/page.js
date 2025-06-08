@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import paperImg from "@/../public/paper2.jpg"
+import winTitle from "@/../public/win-title2.png"
+import failTitle from "@/../public/fail-title2.png"
 import Link from "next/link";
 import { useMemo } from 'react';
 
@@ -29,6 +31,10 @@ export default function GamePage() {
   const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
 
   const [isClient, setIsClient] = useState(false);
+
+  const playAgain = function(){
+    window.location.reload();
+  }
 
 //   const slashSounds = useMemo(() => [
 //     new Audio('/audio/writing1.mp3'),
@@ -271,6 +277,7 @@ useEffect(() => {
         backgroundImage: `url(${paperImg.src})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        cursor: 'url(pencil.png) 0 32, auto',
       }}
     >
       <div className="absolute top-4 left-4 text-lg font-bold text-red-600">
@@ -336,22 +343,23 @@ useEffect(() => {
 
       {/* 遊戲結束視窗 */}
       {isGameOver && (
-        <div className="w-[500px] absolute inset-0 flex flex-col justify-center items-center bg-black bg-opacity-60 text-white text-3xl font-bold z-50">
+        <div className="absolute inset-0 flex flex-col justify-center items-center bg-gray-900 bg-opacity-60 text-white text-3xl font-bold z-50">
           <div>
-            ！遊戲失敗！
+            <Image src={failTitle} alt='failTitle' className="" />
           </div>
 
-          <div className='flex flex-row gap-2'>
-            <Link href="/">
-            <div className="px-4 py-2 mt-4 rounded-full bg-white text-black text-lg hover:bg-gray-200 transition">
-              再來一次
-            </div>
+          <div className='flex flex-row gap-10'>
+
+            <Link href="">
+              <div className="px-4 py-2 mt-4 rounded-full bg-white text-black text-lg hover:bg-gray-200 transition" onClick={playAgain}>
+                再來一次
+              </div>
             </Link>
 
 
             <Link href="/">
             <div className="px-4 py-2 mt-4 rounded-full flex justify-center item-center bg-white text-black text-lg hover:bg-gray-200 transition">
-              不玩了！
+              不要了！
             </div>
             </Link>
 
@@ -360,9 +368,9 @@ useEffect(() => {
       )}
 
       {isClient && isCleared && (
-        <div className="w-[500px] absolute inset-0 flex justify-center items-center flex-col bg-black bg-opacity-60 text-white text-3xl font-bold z-50">
+        <div className="absolute inset-0 flex justify-center items-center flex-col bg-gray-900 bg-opacity-60 text-white text-3xl font-bold z-50">
           <div>
-            ！成功通關！
+            <Image src={winTitle} alt='failTitle' className="" />
           </div>
             
 
