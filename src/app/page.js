@@ -6,7 +6,7 @@ import titleImg from "@/../public/title2.png"
 export default function Home() {
 
   return (
-    <div className="w-screen h-screen bg-[#fff9ef] flex flex-col justify-center items-center gap-4"
+    <div className="w-screen h-screen bg-[#fff9ef] p-[30px]"
     style={
               { backgroundImage: `url(${paperImg.src})`,
               backgroundSize: 'cover',
@@ -14,7 +14,17 @@ export default function Home() {
             }
     >
 
+            <Link href="https://doro.zeabur.app">
+              <div className="rounded-full w-auto h-10 text-white mb-45 flex justify-center items-center
+              bg-cyan-800 hover:bg-cyan-600 font-medium text-l px-4 sm:px-5 sm:w-32">
+                ⬅️回到首頁
+              </div>
+            </Link>
 
+
+    <div className="flex flex-col justify-center items-center gap-4">
+
+      
       <div className="text-black pb-4">
         <Image src={titleImg} alt='Title' className="" />
       </div>
@@ -50,6 +60,9 @@ export default function Home() {
       </div>
                     
         </div>
+    </div>
+
+
 
 
   
