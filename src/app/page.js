@@ -16,8 +16,8 @@ export default function Home() {
 
             <Link href="https://doro.zeabur.app">
               <div className="rounded-full w-auto h-10 text-white mb-45 flex justify-center items-center
-              bg-cyan-800 hover:bg-cyan-600 font-medium text-l px-4 sm:px-5 sm:w-32">
-                ⬅️回到首頁
+              bg-cyan-800 hover:bg-cyan-600 font-medium text-l px-4 sm:px-5 sm:w-50">
+                🎪回去逛主題樂園🎪
               </div>
             </Link>
 

@@ -376,7 +376,7 @@ useEffect(() => {
 
     <Link href="/">
       <div className="px-4 py-2 mt-4 rounded-full bg-white text-black text-lg hover:bg-gray-200 transition">
-        回主畫面
+        回到白紙上
       </div>
     </Link>
   </div>
