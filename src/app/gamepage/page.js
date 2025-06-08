@@ -1,8 +1,13 @@
 "use client"
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
+import paperImg from "@/../public/paper2.jpg"
+import Link from "next/link";
 
 export default function GamePage() {
+  const isHitRef = useRef(false);
+
   const gameRef = useRef(null);
   const playerRef = useRef(null);
   const [enemies, setEnemies] = useState([]);
@@ -10,17 +15,24 @@ export default function GamePage() {
 
   const playerSize = 40;
   const enemySize = 30;
-
   const enemyIdCounter = useRef(0);
+  const [lives, setLives] = useState(3);
+  const [isGameOver, setIsGameOver] = useState(false);
+  const [isInvincible, setIsInvincible] = useState(false);
+  const [isFlashing, setIsFlashing] = useState(false);
+  const [count, setCount] = useState(20); //計時
+  const [isCleared, setIsCleared] = useState(false);
 
-  const [lives, setLives] = useState(3); // 生命值
-  const [isGameOver, setIsGameOver] = useState(false); // 是否結束
+  const isGameEnded = isCleared || isGameOver;
 
-
-
-  // 玩家固定在畫面中央
 
   const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
+
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     const x = window.innerWidth / 2 - playerSize / 2;
@@ -29,19 +41,35 @@ export default function GamePage() {
   }, []);
 
   let uniqueId = 0;
-
   function getUniqueId() {
     return uniqueId++;
   }
 
+  //計時
+  useEffect(() => {
+    if (isGameEnded) return;
+  
+  if (count <= 0) {
+    if (!isGameOver) {  // 只有還沒失敗時才會進入通關狀態
+      setIsCleared(true); // ✅ 通關判定
+    }
+    return;
+  }
+
+  const timer = setTimeout(() => {
+    setCount(prev => prev - 1);
+  }, 1000);
+
+  return () => clearTimeout(timer);
+}, [count]);
 
   //滑鼠移動軌跡點
   useEffect(() => {
+    if (isGameEnded) return;
+
     const handleMouseMove = (e) => {
       const point = { id: getUniqueId(), x: e.clientX, y: e.clientY };
       setTrail((prev) => [...prev, point]);
-
-      // 自動移除該軌跡點（例如 200ms 後）
       setTimeout(() => {
         setTrail((prev) => prev.filter(p => p.id !== point.id));
       }, 200);
@@ -51,10 +79,9 @@ export default function GamePage() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-//消滅敵人
-useEffect(() => {
+  //消滅敵人
+  useEffect(() => {
     let animationId;
-
     const checkCollisions = () => {
       setEnemies(prevEnemies =>
         prevEnemies.filter(enemy => {
@@ -66,97 +93,69 @@ useEffect(() => {
           });
         })
       );
-
       animationId = requestAnimationFrame(checkCollisions);
     };
-
     animationId = requestAnimationFrame(checkCollisions);
     return () => cancelAnimationFrame(animationId);
   }, [trail, enemySize]);
 
-
-
   // 敵人生成
-useEffect(() => {
-  const spawnEnemy = () => {
-    const side = Math.floor(Math.random() * 4); // 0上, 1右, 2下, 3左
-    let x = 0, y = 0;
+  useEffect(() => {
+    if (isGameEnded) return;
 
-    switch (side) {
-      case 0: // 上
-        x = Math.random() * window.innerWidth;
-        y = -enemySize;
-        break;
-      case 1: // 右
-        x = window.innerWidth + enemySize;
-        y = Math.random() * window.innerHeight;
-        break;
-      case 2: // 下
-        x = Math.random() * window.innerWidth;
-        y = window.innerHeight + enemySize;
-        break;
-      case 3: // 左
-        x = -enemySize;
-        y = Math.random() * window.innerHeight;
-        break;
-    }
-
-    setEnemies(prev => {
-  const id = enemyIdCounter.current++;
-  return [...prev, { id, x, y }];
-});
-  };
-
-  const interval = setInterval(spawnEnemy, 2000); // 每 2 秒生成一個敵人
-  return () => clearInterval(interval);
-}, []);
-
+    const spawnEnemy = () => {
+      const side = Math.floor(Math.random() * 4);
+      let x = 0, y = 0;
+      switch (side) {
+        case 0: x = Math.random() * window.innerWidth; y = -enemySize; break;
+        case 1: x = window.innerWidth + enemySize; y = Math.random() * window.innerHeight; break;
+        case 2: x = Math.random() * window.innerWidth; y = window.innerHeight + enemySize; break;
+        case 3: x = -enemySize; y = Math.random() * window.innerHeight; break;
+      }
+      setEnemies(prev => {
+        const id = enemyIdCounter.current++;
+        return [...prev, { id, x, y }];
+      });
+    };
+    const interval = setInterval(spawnEnemy, 700); // 2000 = 每 2 秒生成一個敵人
+    return () => clearInterval(interval);
+  }, []);
 
   // 敵人移動
-useEffect(() => {
-  if (playerPos.x === 0 && playerPos.y === 0) return; // 尚未初始化完畢
-
-  const moveEnemies = () => {
-    setEnemies(prev =>
-      prev.map(enemy => {
-        const dx = playerPos.x - enemy.x;
-        const dy = playerPos.y - enemy.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const speed = 1.2;
-
-        return {
-          ...enemy,
-          x: enemy.x + (dx / distance) * speed,
-          y: enemy.y + (dy / distance) * speed,
-        };
-      })
-    );
-    requestAnimationFrame(moveEnemies);
-  };
-
-  moveEnemies();
-}, [playerPos])
-
-  //https://hackmd.io/@Heidi-Liu/nextjs-error-fix
   useEffect(() => {
-    // Client-side-only        
-    console.log('window: ', window);
-    
-    window.addEventListener('scroll', (e) => {
-    console.log('srcoll: ', e)
-  })
-},[])
+    if (playerPos.x === 0 && playerPos.y === 0) return; // 尚未初始化完畢
+    if (isGameEnded) return;
 
-// 檢查角色與敵人的碰撞
+    const moveEnemies = () => {
+      setEnemies(prev =>
+        prev.map(enemy => {
+          const dx = playerPos.x - enemy.x;
+          const dy = playerPos.y - enemy.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          const speed = 1.2;
+          return {
+            ...enemy,
+            x: enemy.x + (dx / distance) * speed,
+            y: enemy.y + (dy / distance) * speed,
+          };
+        })
+      );
+      requestAnimationFrame(moveEnemies);
+    };
+    moveEnemies();
+  }, [playerPos]);
+
+  // 檢查角色與敵人的碰撞
 useEffect(() => {
-  //if (isGameOver) return;
+  if (isGameEnded) return;
 
+  const isHitRef = { current: false }; // 避免重複碰撞處理
   let animationId;
 
   const checkPlayerCollisions = () => {
     setEnemies(prevEnemies => {
       const remainingEnemies = [];
-      let hit = false;
+      let collided = false;
 
       for (let enemy of prevEnemies) {
         const dx = (enemy.x + enemySize / 2) - (playerPos.x + playerSize / 2);
@@ -164,24 +163,39 @@ useEffect(() => {
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance < (enemySize + playerSize) / 2) {
-          hit = true; // 被撞到
+          collided = true; // 一律消除敵人
+          // 不加進 remainingEnemies → 被消除
         } else {
           remainingEnemies.push(enemy);
         }
       }
 
+      // 扣血與進入無敵狀態：只在非 invincible 時執行
+      if (collided && !isInvincible && !isHitRef.current) {
+        isHitRef.current = true;
 
-      if (hit) {
-        setLives(prev => {
-          const newLives = prev - 0.5;
-          if (newLives <= 0) {
-            setIsGameOver(true);
-          }
-          return newLives;
-        });
+        if (!isCleared) {
+          setLives(prev => {
+            const newLives = prev - 1;
+            if (newLives <= 0) {
+              setIsGameOver(true);
+            }
+            return newLives;
+          });
+        }
+
+        // 啟動無敵與閃爍
+        setIsInvincible(true);
+        setIsFlashing(true);
+
+        setTimeout(() => {
+          setIsInvincible(false);
+          setIsFlashing(false);
+          isHitRef.current = false;
+        }, 1000);
       }
 
-      return remainingEnemies; // 移除撞到角色的敵人
+      return remainingEnemies;
     });
 
     animationId = requestAnimationFrame(checkPlayerCollisions);
@@ -189,73 +203,120 @@ useEffect(() => {
 
   animationId = requestAnimationFrame(checkPlayerCollisions);
   return () => cancelAnimationFrame(animationId);
-}, [playerPos.x, playerPos.y, isGameOver]);
+}, [playerPos.x, playerPos.y, isGameOver, isCleared, isInvincible]);
 
 
-return (
-  <div
-    ref={gameRef}
-    className="w-full h-screen bg-[#fff9ef] relative overflow-hidden"
-  >
-
-    {/* 生命條 */}
-    <div className="absolute top-4 left-4 text-lg font-bold text-red-600">
-      ❤️ x {lives}
-    </div>
-
-    {/* 玩家 */}
+  return (
     <div
-      ref={playerRef}
+      ref={gameRef}
+      className="w-full h-screen bg-[#fff9ef] relative overflow-hidden"
       style={{
-        width: playerSize,
-        height: playerSize,
-        borderRadius: '50%',
-        background: '#333',
-        position: 'absolute',
-        left: playerPos.x,
-        top: playerPos.y,
+        backgroundImage: `url(${paperImg.src})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
       }}
-    />
+    >
+      <div className="absolute top-4 left-4 text-lg font-bold text-red-600">
+        ❤️ x {lives}
+      </div>
 
-    {/* 敵人 */}
-    {enemies.map((enemy) => (
+      <div className="absolute top-4 right-4 text-lg font-bold text-black">
+        計時：{count} 秒
+      </div>
+
+      {/* 玩家 */}
       <div
-        key={enemy.id}
+        ref={playerRef}
         style={{
-          width: enemySize,
-          height: enemySize,
+          width: playerSize,
+          height: playerSize,
           borderRadius: '50%',
-          background: 'crimson',
+          background: '#333',
           position: 'absolute',
-          left: enemy.x,
-          top: enemy.y,
+          left: playerPos.x,
+          top: playerPos.y,
+          opacity: isFlashing ? 0.3 : 1,
+          transition: 'opacity 0.1s ease-in-out',
         }}
       />
-    ))}
 
-
-      {/* 滑順 SVG 滑鼠軌跡 */}
-        <svg
+      {/* 敵人 */}
+      {!isGameEnded && enemies.map(enemy => (
+        <div
+          key={enemy.id}
           style={{
+            width: enemySize,
+            height: enemySize,
+            borderRadius: '50%',
+            background: 'crimson',
             position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            pointerEvents: 'none',
+            left: enemy.x,
+            top: enemy.y,
           }}
-        >
-          <polyline
-            points={trail.map(p => `${p.x},${p.y}`).join(' ')}
-            fill="none"
-            stroke="rgba(0,0,0,0.3)"
-            strokeWidth="4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        />
+      ))}
 
+      {/* 滑鼠軌跡 */}
+      <svg
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          pointerEvents: 'none',
+        }}
+      >
+        <polyline
+          points={trail.map(p => `${p.x},${p.y}`).join(' ')}
+          fill="none"
+          stroke="rgba(0,0,0,0.3)"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+
+      {/* 遊戲結束視窗 */}
+      {isGameOver && (
+        <div className="w-[500px] absolute inset-0 flex flex-col justify-center items-center bg-black bg-opacity-60 text-white text-3xl font-bold z-50">
+          <div>
+            ！遊戲失敗！
+          </div>
+
+          <div className='flex flex-row gap-2'>
+            <Link href="/">
+            <div className="px-4 py-2 mt-4 rounded-full bg-white text-black text-lg hover:bg-gray-200 transition">
+              再來一次
+            </div>
+            </Link>
+
+
+            <Link href="/">
+            <div className="px-4 py-2 mt-4 rounded-full flex justify-center item-center bg-white text-black text-lg hover:bg-gray-200 transition">
+              不玩了！
+            </div>
+            </Link>
+
+          </div>
+        </div>
+      )}
+
+      {isClient && isCleared && (
+        <div className="w-[500px] absolute inset-0 flex justify-center items-center flex-col bg-black bg-opacity-60 text-white text-3xl font-bold z-50">
+          <div>
+            ！成功通關！
+          </div>
+            
+
+    <Link href="/">
+      <div className="px-4 py-2 mt-4 rounded-full bg-white text-black text-lg hover:bg-gray-200 transition">
+        回主畫面
+      </div>
+    </Link>
   </div>
-);
+      )}
 
+    </div>
+  );
 }
