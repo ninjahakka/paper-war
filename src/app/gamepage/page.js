@@ -30,14 +30,15 @@ export default function GamePage() {
 
   const [isClient, setIsClient] = useState(false);
 
-  const slashSounds = useMemo(() => [
-  new Audio('/audio/writing1.mp3'),
-  new Audio('/audio/writing2.mp3'),
-  new Audio('/audio/writing3.mp3'),
-  new Audio('/audio/writing4.mp3'),
-  new Audio('/audio/writing5.mp3')
-  
-], []);
+  if (typeof window !== 'undefined'){
+    const slashSounds = useMemo(() => [
+      new Audio('/audio/writing1.mp3'),
+      new Audio('/audio/writing2.mp3'),
+      new Audio('/audio/writing3.mp3'),
+      new Audio('/audio/writing4.mp3'),
+      new Audio('/audio/writing5.mp3')
+    ], []);
+  }
 
 const playRandomSlashSound = () => {
   const randomIndex = Math.floor(Math.random() * slashSounds.length);
