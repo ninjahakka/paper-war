@@ -30,17 +30,17 @@ export default function GamePage() {
 
   const [isClient, setIsClient] = useState(false);
 
-  if (typeof window !== 'undefined'){
-    const slashSounds = useMemo(() => [
-      new Audio('/audio/writing1.mp3'),
-      new Audio('/audio/writing2.mp3'),
-      new Audio('/audio/writing3.mp3'),
-      new Audio('/audio/writing4.mp3'),
-      new Audio('/audio/writing5.mp3')
-    ], []);
-  }
+  const slashSounds = useMemo(() => [
+    new Audio('/audio/writing1.mp3'),
+    new Audio('/audio/writing2.mp3'),
+    new Audio('/audio/writing3.mp3'),
+    new Audio('/audio/writing4.mp3'),
+    new Audio('/audio/writing5.mp3')
+  ], []);
 
 const playRandomSlashSound = () => {
+  if (typeof window === 'undefined') return; // ⛔ 避免伺服器端執行
+
   const randomIndex = Math.floor(Math.random() * slashSounds.length);
   const sound = slashSounds[randomIndex];
   // 若已在播放則先重設再播放，避免卡住
