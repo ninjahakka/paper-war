@@ -343,7 +343,7 @@ useEffect(() => {
 
       {/* 遊戲結束視窗 */}
       {isGameOver && (
-        <div className="absolute inset-0 flex flex-col justify-center items-center bg-gray-900 bg-opacity-60 text-white text-3xl font-bold z-50">
+        <div className="absolute inset-0 flex flex-col justify-center items-center bg-stone-700 bg-opacity-60 text-white text-3xl font-bold z-50">
           <div>
             <Image src={failTitle} alt='failTitle' className="" />
           </div>
@@ -368,7 +368,7 @@ useEffect(() => {
       )}
 
       {isClient && isCleared && (
-        <div className="absolute inset-0 flex justify-center items-center flex-col bg-gray-900 bg-opacity-60 text-white text-3xl font-bold z-50">
+        <div className="absolute inset-0 flex justify-center items-center flex-col bg-zinc-700 bg-opacity-60 text-white text-3xl font-bold z-50">
           <div>
             <Image src={winTitle} alt='failTitle' className="" />
           </div>
