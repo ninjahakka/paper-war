@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import paperImg from "@/../public/paper2.jpg"
+import paperImg from "@/../public/paper3.png"
 import winTitle from "@/../public/win-title2.png"
 import failTitle from "@/../public/fail-title2.png"
 import Link from "next/link";
@@ -343,7 +343,7 @@ useEffect(() => {
 
       {/* 遊戲結束視窗 */}
       {isGameOver && (
-        <div className="absolute inset-0 flex flex-col justify-center items-center bg-stone-700 bg-opacity-60 text-white text-3xl font-bold z-50">
+        <div className="absolute inset-0 flex flex-col justify-center items-center bg-[#A77653] bg-opacity-60 text-white text-3xl font-bold z-50">
           <div>
             <Image src={failTitle} alt='failTitle' className="" />
           </div>
@@ -368,7 +368,7 @@ useEffect(() => {
       )}
 
       {isClient && isCleared && (
-        <div className="absolute inset-0 flex justify-center items-center flex-col bg-zinc-700 bg-opacity-60 text-white text-3xl font-bold z-50">
+        <div className="absolute inset-0 flex justify-center items-center flex-col bg-[#CBD3E3] bg-opacity-60 text-white text-3xl font-bold z-50">
           <div>
             <Image src={winTitle} alt='failTitle' className="" />
           </div>
@@ -376,7 +376,7 @@ useEffect(() => {
 
     <Link href="/">
       <div className="px-4 py-2 mt-4 rounded-full bg-white text-black text-lg hover:bg-gray-200 transition">
-        回到白紙上
+        回到首頁
       </div>
     </Link>
   </div>

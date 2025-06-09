@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import paperImg from "@/../public/paper2.jpg"
+import paperImg from "@/../public/paper3.png"
 import titleImg from "@/../public/title2.png"
 
 export default function Home() {
@@ -15,8 +15,8 @@ export default function Home() {
     >
 
             <Link href="https://doro.zeabur.app">
-              <div className="rounded-full w-auto h-10 text-white mb-45 flex justify-center items-center
-              bg-cyan-800 hover:bg-cyan-600 font-medium text-l px-4 sm:px-5 sm:w-50">
+              <div className="rounded-full w-auto h-10 text-[#ECEAE1] mb-45 flex justify-center items-center transition-colors
+              bg-[#788DAC] hover:bg-[#CBD7E3] font-medium text-l px-4 sm:px-5 sm:w-50">
                 🎪回去逛主題樂園🎪
               </div>
             </Link>
@@ -34,8 +34,8 @@ export default function Home() {
           <Link href="/gamepage">
             <div className="flex gap-4 items-center justify-center flex-col sm:flex-row">
             <div
-              className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground 
-              text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-2xl h-10 sm:h-12 px-4 sm:px-5 
+              className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-[#F7CB82] 
+              text-background gap-2 hover:bg-[#D58E66] font-medium text-2xl h-10 sm:h-12 px-4 sm:px-5 
               sm:w-auto"
               //text-sm sm:text-base
               target="_blank"
